@@ -1,0 +1,95 @@
+✅ Simple Algorithm:
+🔧 1. Construct Expression Tree:
+Scan the prefix expression from right to left.
+
+If the character is an operand, create a node and push it onto the stack.
+
+If it's an operator, pop two nodes from the stack, make them children, and push the new node back.
+
+🔄 2. Postorder Traversal (Non-Recursive):
+Use two stacks:
+
+Stack1 to traverse the tree.
+
+Stack2 to reverse postorder output.
+
+🧹 3. Delete Tree:
+Use postorder traversal to delete all nodes.
+
+
+
+
+
+
+
+
+
+
+#include <iostream>
+#include <stack>
+#include <cctype>
+using namespace std;
+
+struct Node {
+    char data;
+    Node* left;
+    Node* right;
+    Node(char val) : data(val), left(nullptr), right(nullptr) {}
+};
+
+// Function to construct expression tree from prefix
+Node* constructTree(string prefix) {
+    stack<Node*> st;
+    for (int i = prefix.size() - 1; i >= 0; --i) {
+        char c = prefix[i];
+        Node* node = new Node(c);
+        if (isalpha(c)) {
+            st.push(node);
+        } else {
+            node->left = st.top(); st.pop();
+            node->right = st.top(); st.pop();
+            st.push(node);
+        }
+    }
+    return st.top();
+}
+
+// Non-recursive postorder traversal
+void postorderNonRecursive(Node* root) {
+    if (!root) return;
+    stack<Node*> s1, s2;
+    s1.push(root);
+    while (!s1.empty()) {
+        Node* curr = s1.top(); s1.pop();
+        s2.push(curr);
+        if (curr->left) s1.push(curr->left);
+        if (curr->right) s1.push(curr->right);
+    }
+
+    cout << "Postorder traversal: ";
+    while (!s2.empty()) {
+        cout << s2.top()->data << " ";
+        s2.pop();
+    }
+    cout << endl;
+}
+
+// Delete tree
+void deleteTree(Node* root) {
+    if (!root) return;
+    deleteTree(root->left);
+    deleteTree(root->right);
+    delete root;
+}
+
+int main() {
+    string prefix = "+--a*bc/def";
+    Node* root = constructTree(prefix);
+    postorderNonRecursive(root);
+    deleteTree(root);
+    cout << "Tree deleted successfully." << endl;
+    return 0;
+}
+
+
+
