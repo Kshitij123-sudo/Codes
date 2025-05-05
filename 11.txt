@@ -1,0 +1,141 @@
+✅ Simple Algorithm:
+Start
+
+Display menu (Add / Delete / Search / Display / Exit)
+
+Based on choice:
+
+Add: Open file in append mode and add student details
+
+Delete: Copy all except the deleted record to a temp file and rename it
+
+Search: Read each line and check if roll number matches
+
+Display: Print each record from the file
+
+Repeat until exit
+
+Stop
+
+
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+struct Student {
+    int roll;
+    string name;
+    string div;
+    string address;
+};
+
+// Function to add a student
+void addStudent() {
+    Student s;
+    ofstream file("students.txt", ios::app);
+
+    cout << "Enter Roll Number: ";
+    cin >> s.roll;
+    cout << "Enter Name: ";
+    cin >> ws;
+    getline(cin, s.name);
+    cout << "Enter Division: ";
+    getline(cin, s.div);
+    cout << "Enter Address: ";
+    getline(cin, s.address);
+
+    file << s.roll << "," << s.name << "," << s.div << "," << s.address << "\n";
+    file.close();
+    cout << "Student added successfully.\n";
+}
+
+// Function to display all students
+void displayAll() {
+    ifstream file("students.txt");
+    string line;
+    bool found = false;
+
+    while (getline(file, line)) {
+        found = true;
+        cout << line << endl;
+    }
+
+    if (!found) cout << "No student records found.\n";
+
+    file.close();
+}
+
+// Function to search a student by roll number
+void searchStudent() {
+    int roll;
+    cout << "Enter Roll Number to search: ";
+    cin >> roll;
+
+    ifstream file("students.txt");
+    string line;
+    bool found = false;
+
+    while (getline(file, line)) {
+        int r = stoi(line.substr(0, line.find(',')));
+        if (r == roll) {
+            cout << "Record found: " << line << endl;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) cout << "Record not found.\n";
+
+    file.close();
+}
+
+// Function to delete a student by roll number
+void deleteStudent() {
+    int roll;
+    cout << "Enter Roll Number to delete: ";
+    cin >> roll;
+
+    ifstream file("students.txt");
+    ofstream temp("temp.txt");
+    string line;
+    bool found = false;
+
+    while (getline(file, line)) {
+        int r = stoi(line.substr(0, line.find(',')));
+        if (r != roll) {
+            temp << line << endl;
+        } else {
+            found = true;
+        }
+    }
+
+    file.close();
+    temp.close();
+    remove("students.txt");
+    rename("temp.txt", "students.txt");
+
+    if (found) cout << "Record deleted successfully.\n";
+    else cout << "Record not found.\n";
+}
+
+// Main menu
+int main() {
+    int choice;
+    do {
+        cout << "\n--- Student Record Menu ---\n";
+        cout << "1. Add Student\n2. Delete Student\n3. Search Student\n4. Display All\n5. Exit\nEnter choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: addStudent(); break;
+            case 2: deleteStudent(); break;
+            case 3: searchStudent(); break;
+            case 4: displayAll(); break;
+            case 5: cout << "Exiting...\n"; break;
+            default: cout << "Invalid choice!\n";
+        }
+    } while (choice != 5);
+
+    return 0;
+}
