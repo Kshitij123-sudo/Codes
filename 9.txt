@@ -38,117 +38,137 @@ Visit the left child, then the current node, then the right child.
 
 
 #include <iostream>
-#include <string>
 using namespace std;
 
-struct Node {
-    string keyword, meaning;
-    Node* left;
-    Node* right;
-    int height;
-
-    Node(string key, string val) : keyword(key), meaning(val), left(NULL), right(NULL), height(1) {}
-};
-
-class AVLTree {
-private:
-    Node* root;
-
-    int height(Node* node) {
-        return node ? node->height : 0;
-    }
-
-    int balanceFactor(Node* node) {
-        return height(node->left) - height(node->right);
-    }
-
-    Node* rotateRight(Node* y) {
-        Node* x = y->left;
-        Node* T2 = x->right;
-        x->right = y;
-        y->left = T2;
-        y->height = max(height(y->left), height(y->right)) + 1;
-        x->height = max(height(x->left), height(x->right)) + 1;
-        return x;
-    }
-
-    Node* rotateLeft(Node* x) {
-        Node* y = x->right;
-        Node* T2 = y->left;
-        y->left = x;
-        x->right = T2;
-        x->height = max(height(x->left), height(x->right)) + 1;
-        y->height = max(height(y->left), height(y->right)) + 1;
-        return y;
-    }
-
-    Node* insert(Node* node, string keyword, string meaning) {
-        if (!node) return new Node(keyword, meaning);
-
-        if (keyword < node->keyword)
-            node->left = insert(node->left, keyword, meaning);
-        else if (keyword > node->keyword)
-            node->right = insert(node->right, keyword, meaning);
-        else
-            node->meaning = meaning;  // Update if keyword exists
-
-        node->height = 1 + max(height(node->left), height(node->right));
-        int balance = balanceFactor(node);
-
-        // Left heavy
-        if (balance > 1 && keyword < node->left->keyword) return rotateRight(node);
-
-        // Right heavy
-        if (balance < -1 && keyword > node->right->keyword) return rotateLeft(node);
-
-        // Left-right heavy
-        if (balance > 1 && keyword > node->left->keyword) {
-            node->left = rotateLeft(node->left);
-            return rotateRight(node);
-        }
-
-        // Right-left heavy
-        if (balance < -1 && keyword < node->right->keyword) {
-            node->right = rotateRight(node->right);
-            return rotateLeft(node);
-        }
-
-        return node;
-    }
-
-    void inOrder(Node* node) {
-        if (node) {
-            inOrder(node->left);
-            cout << node->keyword << ": " << node->meaning << endl;
-            inOrder(node->right);
-        }
-    }
-
+class Node {
 public:
-    AVLTree() : root(NULL) {}
-
-    void addKeyword(string keyword, string meaning) {
-        root = insert(root, keyword, meaning);
-    }
-
-    void displayDataAscending() {
-        cout << "Keywords in Ascending Order:\n";
-        inOrder(root);
-    }
+    string key, meaning;
+    Node *left, *right;
+    int height;
+    Node(string k, string m) : key(k), meaning(m), left(NULL), right(NULL), height(1) {}
 };
+
+int height(Node* n) { return n ? n->height : 0; }
+int balance(Node* n) { return n ? height(n->left) - height(n->right) : 0; }
+int max(int a, int b) { return a > b ? a : b; }
+
+Node* rotateRight(Node* y) {
+    Node* x = y->left, *T2 = x->right;
+    x->right = y; y->left = T2;
+    y->height = max(height(y->left), height(y->right)) + 1;
+    x->height = max(height(x->left), height(x->right)) + 1;
+    return x;
+}
+
+Node* rotateLeft(Node* x) {
+    Node* y = x->right, *T2 = y->left;
+    y->left = x; x->right = T2;
+    x->height = max(height(x->left), height(x->right)) + 1;
+    y->height = max(height(y->left), height(y->right)) + 1;
+    return y;
+}
+
+Node* insert(Node* root, string k, string m) {
+    if (!root) return new Node(k, m);
+    if (k < root->key) root->left = insert(root->left, k, m);
+    else if (k > root->key) root->right = insert(root->right, k, m);
+    else { cout << "Duplicate key!\n"; return root; }
+
+    root->height = max(height(root->left), height(root->right)) + 1;
+    int b = balance(root);
+
+    if (b > 1 && k < root->left->key) return rotateRight(root);
+    if (b < -1 && k > root->right->key) return rotateLeft(root);
+    if (b > 1 && k > root->left->key) { root->left = rotateLeft(root->left); return rotateRight(root); }
+    if (b < -1 && k < root->right->key) { root->right = rotateRight(root->right); return rotateLeft(root); }
+
+    return root;
+}
+
+Node* minValue(Node* n) {
+    while (n->left) n = n->left;
+    return n;
+}
+
+Node* remove(Node* root, string k) {
+    if (!root) return root;
+    if (k < root->key) root->left = remove(root->left, k);
+    else if (k > root->key) root->right = remove(root->right, k);
+    else {
+        if (!root->left || !root->right) {
+            Node* temp = root->left ? root->left : root->right;
+            if (!temp) return NULL;
+            *root = *temp;
+        } else {
+            Node* temp = minValue(root->right);
+            root->key = temp->key;
+            root->meaning = temp->meaning;
+            root->right = remove(root->right, temp->key);
+        }
+    }
+
+    root->height = max(height(root->left), height(root->right)) + 1;
+    int b = balance(root);
+
+    if (b > 1 && balance(root->left) >= 0) return rotateRight(root);
+    if (b > 1 && balance(root->left) < 0) { root->left = rotateLeft(root->left); return rotateRight(root); }
+    if (b < -1 && balance(root->right) <= 0) return rotateLeft(root);
+    if (b < -1 && balance(root->right) > 0) { root->right = rotateRight(root->right); return rotateLeft(root); }
+
+    return root;
+}
+
+void update(Node* root, string k, string newMeaning) {
+    while (root) {
+        if (k == root->key) { root->meaning = newMeaning; cout << "Updated\n"; return; }
+        root = (k < root->key) ? root->left : root->right;
+    }
+    cout << "Keyword not found\n";
+}
+
+void inOrder(Node* r) {
+    if (!r) return;
+    inOrder(r->left);
+    cout << r->key << ": " << r->meaning << endl;
+    inOrder(r->right);
+}
+
+void reverseOrder(Node* r) {
+    if (!r) return;
+    reverseOrder(r->right);
+    cout << r->key << ": " << r->meaning << endl;
+    reverseOrder(r->left);
+}
+
+void search(Node* root, string k) {
+    int cmp = 0;
+    while (root) {
+        cmp++;
+        if (k == root->key) {
+            cout << "Found: " << root->meaning << " | Comparisons: " << cmp << endl;
+            return;
+        }
+        root = (k < root->key) ? root->left : root->right;
+    }
+    cout << "Not found | Comparisons: " << cmp << endl;
+}
 
 int main() {
-    AVLTree dictionary;
-
-    dictionary.addKeyword("apple", "A fruit that is sweet and crunchy.");
-    dictionary.addKeyword("banana", "A yellow fruit that is soft.");
-    dictionary.addKeyword("cherry", "A small, red, round fruit.");
-
-    dictionary.displayDataAscending();
-
-    dictionary.addKeyword("banana", "A yellow fruit, often curved.");  // Update banana's meaning
-
-    dictionary.displayDataAscending();
-
+    Node* root = NULL;
+    int ch;
+    string k, m;
+    do {
+        cout << "\n1.Insert 2.Delete 3.Update 4.Asc 5.Desc 6.Search 7.Exit\n";
+        cin >> ch;
+        switch (ch) {
+            case 1: cout << "Key & Meaning: "; cin >> k >> m; root = insert(root, k, m); break;
+            case 2: cout << "Key to delete: "; cin >> k; root = remove(root, k); break;
+            case 3: cout << "Key to update: "; cin >> k >> m; update(root, k, m); break;
+            case 4: inOrder(root); break;
+            case 5: reverseOrder(root); break;
+            case 6: cout << "Key to search: "; cin >> k; search(root, k); break;
+        }
+    } while (ch != 7);
     return 0;
 }
+
