@@ -1,0 +1,103 @@
+Algorithm:
+Create a Patient Class:
+
+Each patient will have a name, condition (serious, not serious, or general checkup), and a priority level.
+
+Priority Queue Implementation:
+
+Use a priority queue to manage patients.
+
+Assign a priority to each patient:
+
+Serious: highest priority (1).
+
+Not Serious: medium priority (2).
+
+General Checkup: lowest priority (3).
+
+Add a Patient to the Queue:
+
+Patients are inserted into the priority queue based on their priority. Patients with higher priority should be dequeued first.
+
+Serve Patients:
+
+Dequeue patients one by one, starting from the highest priority, and print their names and conditions.
+
+Exit the program when all patients are served.
+
+
+
+
+
+
+
+#include <iostream>
+#include <queue>
+#include <string>
+using namespace std;
+
+// Patient class to represent a patient
+class Patient {
+public:
+    string name;
+    string condition;
+    int priority;
+
+    // Constructor to initialize the patient
+    Patient(string n, string c, int p) {
+        name = n;
+        condition = c;
+        priority = p;
+    }
+
+    // Comparator for priority queue to sort by priority
+    bool operator<(const Patient& p) const {
+        return priority > p.priority;  // Higher priority (lower number) comes first
+    }
+};
+
+int main() {
+    priority_queue<Patient> pq;
+    int n;  // Number of patients
+    string name, condition;
+    
+    cout << "Enter the number of patients: ";
+    cin >> n;
+    
+    // Enter patient details
+    for (int i = 0; i < n; i++) {
+        cout << "Enter patient " << i + 1 << " details:" << endl;
+        cout << "Name: ";
+        cin >> ws; // To consume any leading whitespace
+        getline(cin, name);  // To read the entire name (with spaces)
+        
+        cout << "Condition (Serious, Not Serious, General Checkup): ";
+        getline(cin, condition);
+
+        // Assign priority based on condition
+        int priority = 0;
+        if (condition == "Serious") {
+            priority = 1;  // Highest priority
+        } else if (condition == "Not Serious") {
+            priority = 2;  // Medium priority
+        } else if (condition == "General Checkup") {
+            priority = 3;  // Lowest priority
+        } else {
+            cout << "Invalid condition entered!" << endl;
+            continue;  // Skip this patient if invalid condition is entered
+        }
+
+        // Add the patient to the priority queue
+        pq.push(Patient(name, condition, priority));
+    }
+
+    // Serve patients based on priority
+    cout << "\nServing Patients in Order of Priority:\n";
+    while (!pq.empty()) {
+        Patient p = pq.top();
+        pq.pop();
+        cout << "Serving " << p.name << " (" << p.condition << ")\n";
+    }
+
+    return 0;
+}
