@@ -116,3 +116,24 @@ int main() {
 
     return 0;
 }
+
+
+
+
+
+Start
+Initiate hash table
+Enter client data
+Choose hashing technique
+Chaining then compute hash table
+Insert data into linked list to handle collision at compute index
+Look up client data
+transverse linked list to find key
+Count number of comparison
+Open addressing then compute hash table
+X lot empty insert key value
+At index match return value
+Probe next slot
+count no Of comparison
+analyse
+stop
