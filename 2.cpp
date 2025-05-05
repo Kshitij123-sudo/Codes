@@ -116,3 +116,51 @@ int main() {
 
     return 0;
 }
+
+
+
+Start
+
+1.Create a structure Entry with:
+
+key (telephone number)
+
+name (client name)
+
+2.Create a hash table of size 10 and initialize all:
+
+key = -1
+
+name = "NULL"
+
+3.Insert Operation:
+
+Input key and name
+
+Compute index = key % 10
+
+Linearly probe (i.e., try next cells) until an empty slot is found
+
+Insert key and name at that position
+
+4.Display Operation:
+
+Print index, key, and name for all 10 entries
+
+5.Find/Search Operation:
+
+Input key to find
+
+Search linearly through table
+
+If found, display index and name
+
+6.Delete Operation:
+
+Input key to delete
+
+If found, reset key = -1, name = "NULL"
+
+Repeat until user chooses to exit
+
+End
