@@ -1,0 +1,154 @@
+problem : a dictionary stores keywords and its meaning provide faculty for adding new keywords deleting keywords updating value of any entry provide facility to display whole data stored in ascending or descending order also find how many maximum comparisons may require for finding any keyword use height balance tree and find the complexity for finding a keyword
+
+
+algorithm:
+Insert or Update Keyword:
+
+If the tree is empty, create a node with the keyword and meaning.
+
+Else, compare the keyword with the current node:
+
+If it’s smaller, insert it in the left subtree.
+
+If it’s larger, insert it in the right subtree.
+
+If it exists, update the meaning.
+
+Balance the tree after each insertion to maintain AVL properties.
+
+Balance Tree (if unbalanced):
+
+If a node becomes unbalanced, perform rotations:
+
+Left rotation (for right-heavy nodes).
+
+Right rotation (for left-heavy nodes).
+
+Combination of left-right or right-left rotations as needed.
+
+Display All Keywords (in ascending order):
+
+Perform in-order traversal to print keywords and meanings:
+
+Visit the left child, then the current node, then the right child.
+
+
+
+
+
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Node {
+    string keyword, meaning;
+    Node* left;
+    Node* right;
+    int height;
+
+    Node(string key, string val) : keyword(key), meaning(val), left(NULL), right(NULL), height(1) {}
+};
+
+class AVLTree {
+private:
+    Node* root;
+
+    int height(Node* node) {
+        return node ? node->height : 0;
+    }
+
+    int balanceFactor(Node* node) {
+        return height(node->left) - height(node->right);
+    }
+
+    Node* rotateRight(Node* y) {
+        Node* x = y->left;
+        Node* T2 = x->right;
+        x->right = y;
+        y->left = T2;
+        y->height = max(height(y->left), height(y->right)) + 1;
+        x->height = max(height(x->left), height(x->right)) + 1;
+        return x;
+    }
+
+    Node* rotateLeft(Node* x) {
+        Node* y = x->right;
+        Node* T2 = y->left;
+        y->left = x;
+        x->right = T2;
+        x->height = max(height(x->left), height(x->right)) + 1;
+        y->height = max(height(y->left), height(y->right)) + 1;
+        return y;
+    }
+
+    Node* insert(Node* node, string keyword, string meaning) {
+        if (!node) return new Node(keyword, meaning);
+
+        if (keyword < node->keyword)
+            node->left = insert(node->left, keyword, meaning);
+        else if (keyword > node->keyword)
+            node->right = insert(node->right, keyword, meaning);
+        else
+            node->meaning = meaning;  // Update if keyword exists
+
+        node->height = 1 + max(height(node->left), height(node->right));
+        int balance = balanceFactor(node);
+
+        // Left heavy
+        if (balance > 1 && keyword < node->left->keyword) return rotateRight(node);
+
+        // Right heavy
+        if (balance < -1 && keyword > node->right->keyword) return rotateLeft(node);
+
+        // Left-right heavy
+        if (balance > 1 && keyword > node->left->keyword) {
+            node->left = rotateLeft(node->left);
+            return rotateRight(node);
+        }
+
+        // Right-left heavy
+        if (balance < -1 && keyword < node->right->keyword) {
+            node->right = rotateRight(node->right);
+            return rotateLeft(node);
+        }
+
+        return node;
+    }
+
+    void inOrder(Node* node) {
+        if (node) {
+            inOrder(node->left);
+            cout << node->keyword << ": " << node->meaning << endl;
+            inOrder(node->right);
+        }
+    }
+
+public:
+    AVLTree() : root(NULL) {}
+
+    void addKeyword(string keyword, string meaning) {
+        root = insert(root, keyword, meaning);
+    }
+
+    void displayDataAscending() {
+        cout << "Keywords in Ascending Order:\n";
+        inOrder(root);
+    }
+};
+
+int main() {
+    AVLTree dictionary;
+
+    dictionary.addKeyword("apple", "A fruit that is sweet and crunchy.");
+    dictionary.addKeyword("banana", "A yellow fruit that is soft.");
+    dictionary.addKeyword("cherry", "A small, red, round fruit.");
+
+    dictionary.displayDataAscending();
+
+    dictionary.addKeyword("banana", "A yellow fruit, often curved.");  // Update banana's meaning
+
+    dictionary.displayDataAscending();
+
+    return 0;
+}
