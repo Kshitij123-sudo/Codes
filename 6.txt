@@ -1,0 +1,109 @@
+✅ Algorithm:
+Take input for number of cities and flight paths.
+
+Create an adjacency list using a map or vector of vectors.
+
+Store each flight as an edge with cost (time or fuel).
+
+Use DFS or BFS to check if all cities are reachable = connected graph.
+
+
+
+
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <stack>
+#include <set>
+using namespace std;
+
+class Graph {
+    unordered_map<string, vector<pair<string, int>>> adjList;
+
+public:
+    void addFlight(string src, string dest, int cost) {
+        adjList[src].push_back({dest, cost});
+        adjList[dest].push_back({src, cost}); // undirected
+    }
+
+    void printGraph() {
+        cout << "\nFlight connections:\n";
+        for (auto& city : adjList) {
+            cout << city.first << " -> ";
+            for (auto& neighbor : city.second) {
+                cout << "(" << neighbor.first << ", Cost: " << neighbor.second << ") ";
+            }
+            cout << endl;
+        }
+    }
+
+    bool isConnected() {
+        if (adjList.empty()) return true;
+
+        set<string> visited;
+        stack<string> st;
+
+        auto start = adjList.begin()->first;
+        st.push(start);
+
+        while (!st.empty()) {
+            string city = st.top(); st.pop();
+            if (visited.find(city) == visited.end()) {
+                visited.insert(city);
+                for (auto& neighbor : adjList[city]) {
+                    st.push(neighbor.first);
+                }
+            }
+        }
+
+        return visited.size() == adjList.size();
+    }
+};
+
+int main() {
+    Graph g;
+    int n;
+    cout << "Enter number of flight connections: ";
+    cin >> n;
+
+    cout << "Enter source city, destination city, and cost (time/fuel):\n";
+    for (int i = 0; i < n; ++i) {
+        string src, dest;
+        int cost;
+        cin >> src >> dest >> cost;
+        g.addFlight(src, dest, cost);
+    }
+
+    g.printGraph();
+
+    if (g.isConnected()) {
+        cout << "\nGraph is connected.\n";
+    } else {
+        cout << "\nGraph is NOT connected.\n";
+    }
+
+    return 0;
+}
+
+
+
+✅ Sample Input:
+
+5
+Mumbai Delhi 2
+Delhi Kolkata 3
+Kolkata Chennai 4
+Chennai Bangalore 2
+Mumbai Bangalore 5
+
+
+✅ Sample Output:
+
+Flight connections:
+Mumbai -> (Delhi, Cost: 2) (Bangalore, Cost: 5)
+Delhi -> (Mumbai, Cost: 2) (Kolkata, Cost: 3)
+Kolkata -> (Delhi, Cost: 3) (Chennai, Cost: 4)
+Chennai -> (Kolkata, Cost: 4) (Bangalore, Cost: 2)
+Bangalore -> (Chennai, Cost: 2) (Mumbai, Cost: 5)
+
+Graph is connected.
