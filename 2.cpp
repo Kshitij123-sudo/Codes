@@ -1,97 +1,118 @@
 #include <iostream>
-#include <list>
-#include <string>
+#include <cstring>
 using namespace std;
 
-const int SIZE = 10;
+class HashTable {
+    struct Entry {
+        long key;
+        char name[10];
+    };
 
-class Dictionary {
-    list<pair<string, string>> table[SIZE];
-
-    int hashFunction(string key) {
-        int hash = 0;
-        for (char ch : key) {
-            hash = (hash + int(ch)) % SIZE;
-        }
-        return hash;
-    }
+    Entry table[10];
 
 public:
-    void insert(string key, string value) {
-        int index = hashFunction(key);
-
-        // Update if key already exists
-        for (auto &pair : table[index]) {
-            if (pair.first == key) {
-                cout << "Key already exists. Updating value.\n";
-                pair.second = value;
-                return;
-            }
+    HashTable() {
+        for (int i = 0; i < 10; i++) {
+            table[i].key = -1;
+            strcpy(table[i].name, "NULL");
         }
-
-        table[index].push_back({key, value});
     }
 
-    void find(string key) {
-        int index = hashFunction(key);
-        for (auto &pair : table[index]) {
-            if (pair.first == key) {
-                cout << "Key: " << key << " | Value: " << pair.second << "\n";
-                return;
-            }
-        }
-        cout << "Key not found.\n";
-    }
+    void insert() {
+        long key;
+        char name[10];
+        char choice;
+        do {
+            cout << "Enter telephone number: ";
+            cin >> key;
+            cout << "Enter client name: ";
+            cin >> name;
 
-    void deleteKey(string key) {
-        int index = hashFunction(key);
-        for (auto it = table[index].begin(); it != table[index].end(); ++it) {
-            if (it->first == key) {
-                table[index].erase(it);
-                cout << "Key '" << key << "' deleted.\n";
-                return;
+            int index = key % 10;
+            int original = index;
+            bool placed = false;
+
+            for (int i = 0; i < 10; i++) {
+                int pos = (index + i) % 10;
+                if (table[pos].key == -1) {
+                    table[pos].key = key;
+                    strcpy(table[pos].name, name);
+                    placed = true;
+                    break;
+                }
             }
-        }
-        cout << "Key not found. Cannot delete.\n";
+
+            if (!placed) {
+                cout << "Hash table is full!\n";
+            }
+
+            cout << "Insert more? (y/n): ";
+            cin >> choice;
+        } while (choice == 'y' || choice == 'Y');
     }
 
     void display() {
-        cout << "\nDictionary Hash Table:\n";
-        for (int i = 0; i < SIZE; i++) {
-            cout << i << ": ";
-            for (auto &pair : table[i]) {
-                cout << "[" << pair.first << " : " << pair.second << "] -> ";
+        cout << "\nIndex\tKey\tName\n";
+        for (int i = 0; i < 10; i++) {
+            cout << i << "\t" << table[i].key << "\t" << table[i].name << "\n";
+        }
+    }
+
+    int find(long key) {
+        for (int i = 0; i < 10; i++) {
+            if (table[i].key == key) {
+                cout << "Found at index " << i << " with name " << table[i].name << "\n";
+                return i;
             }
-            cout << "NULL\n";
+        }
+        return -1;
+    }
+
+    void remove(long key) {
+        int index = find(key);
+        if (index != -1) {
+            table[index].key = -1;
+            strcpy(table[index].name, "NULL");
+            cout << "Key deleted.\n";
+        } else {
+            cout << "Key not found.\n";
         }
     }
 };
 
 int main() {
-    Dictionary dict;
-    int k;
-    string key, value;
+    HashTable ht;
+    int choice;
+    long key;
+    char cont;
 
-    cout << "Enter number of key-value pairs: ";
-    cin >> k;
+    do {
+        cout << "\n--- Telephone Directory ---\n";
+        cout << "1. Insert\n2. Display\n3. Find\n4. Delete\n5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
 
-    cout << "Enter key-value pairs:\n";
-    for (int i = 0; i < k; i++) {
-        cin >> key >> value;
-        dict.insert(key, value);
-    }
+        switch (choice) {
+            case 1: ht.insert(); break;
+            case 2: ht.display(); break;
+            case 3:
+                cout << "Enter key to search: ";
+                cin >> key;
+                if (ht.find(key) == -1)
+                    cout << "Key not found.\n";
+                break;
+            case 4:
+                cout << "Enter key to delete: ";
+                cin >> key;
+                ht.remove(key);
+                break;
+            case 5: return 0;
+            default: cout << "Invalid choice.\n";
+        }
 
-    dict.display();
-
-    cout << "\nEnter key to search: ";
-    cin >> key;
-    dict.find(key);
-
-    cout << "\nEnter key to delete: ";
-    cin >> key;
-    dict.deleteKey(key);
-
-    dict.display();
+        cout << "Continue? (y/n): ";
+        cin >> cont;
+    } while (cont == 'y' || cont == 'Y');
 
     return 0;
 }
