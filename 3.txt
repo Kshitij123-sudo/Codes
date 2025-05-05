@@ -1,0 +1,120 @@
+problem statement : A book consist of chapters chapter consists of section and section consists of subsections construct a tree and print the nodes find the time and space required of your method
+
+
+
+
+
+
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class TreeNode {
+public:
+    string label;
+    vector<TreeNode*> children;
+
+    TreeNode(string label) {
+        this->label = label;
+    }
+
+    void addChild(TreeNode* child) {
+        children.push_back(child);
+    }
+};
+
+// Recursive function to print tree
+void printTree(TreeNode* root, int level = 0) {
+    for (int i = 0; i < level; i++)
+        cout << "  ";
+    cout << root->label << endl;
+
+    for (auto child : root->children)
+        printTree(child, level + 1);
+}
+
+int main() {
+    int chCount, secCount, subSecCount;
+
+    TreeNode* book = new TreeNode("Book");
+
+    cout << "Enter number of chapters: ";
+    cin >> chCount;
+
+    for (int i = 0; i < chCount; i++) {
+        string chName;
+        cout << "Enter name of Chapter " << i + 1 << ": ";
+        cin.ignore();
+        getline(cin, chName);
+
+        TreeNode* chapter = new TreeNode("Chapter: " + chName);
+        book->addChild(chapter);
+
+        cout << "Enter number of sections in " << chName << ": ";
+        cin >> secCount;
+
+        for (int j = 0; j < secCount; j++) {
+            string secName;
+            cout << "  Enter name of Section " << j + 1 << ": ";
+            cin.ignore();
+            getline(cin, secName);
+
+            TreeNode* section = new TreeNode("  Section: " + secName);
+            chapter->addChild(section);
+
+            cout << "  Enter number of subsections in " << secName << ": ";
+            cin >> subSecCount;
+
+            for (int k = 0; k < subSecCount; k++) {
+                string subSecName;
+                cout << "    Enter name of Subsection " << k + 1 << ": ";
+                cin.ignore();
+                getline(cin, subSecName);
+
+                TreeNode* subSection = new TreeNode("    Subsection: " + subSecName);
+                section->addChild(subSection);
+            }
+        }
+    }
+
+    cout << "\n--- Book Structure ---\n";
+    printTree(book);
+
+    return 0;
+}
+
+
+
+
+
+Define a TreeNode class with:
+
+A label to store the name
+
+A list of children nodes
+
+Create root node with label "Book"
+
+Input number of chapters
+For each chapter:
+    a. Input chapter name
+    b. Create chapter node and add to book
+    c. Input number of sections
+        For each section:
+            i. Input section name
+            ii. Create section node and add to chapter
+            iii. Input number of subsections
+                For each subsection:
+                a. Input subsection name
+                b. Create subsection node and add to section
+
+Display tree using recursive function
+
+Stop
+
+
+
+
+
+
